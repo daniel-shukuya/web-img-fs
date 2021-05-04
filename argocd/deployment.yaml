@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-img-fs
+spec:
+  selector:
+    app: web-img-fs
+  ports:
+    - port: 8080
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-img-fs
+  labels:
+    app: web-img-fs
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-img-fs
+  template:
+    metadata:
+      labels:
+        app: web-img-fs
+    spec:
+      containers:
+        - name: web-img-fs
+          image: danieldocke/web-img-fs:1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: web-img-fs
+spec:
+  host: web-img-fs.apps.socp.stg.int.cvattv.com.ar
+  to:
+    kind: Service
+    name: web-img-fs
+    weight: 100
+  port:
+    targetPort: 8080
+  wildcardPolicy: None
